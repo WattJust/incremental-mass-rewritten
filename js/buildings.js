@@ -7,8 +7,8 @@ const BUILDINGS_DATA = {
         scale: "massUpg",
 
         get isUnlocked() { return player.ranks.rank.gte(1) || player.mainUpg.atom.includes(1) },
-        get autoUnlocked() { return hasUpgrade('rp',3) },
-        get noSpend() { return hasUpgrade('bh',1) },
+        get autoUnlocked() { return player.ranks.tier.gte(4) },
+        get noSpend() { return player.ranks.tier.gte(8) },
 
         get res() { return player.mass },
         set res(v) { player.mass = v },
@@ -48,8 +48,8 @@ const BUILDINGS_DATA = {
         scale: "massUpg",
 
         get isUnlocked() { return player.ranks.rank.gte(2) || player.mainUpg.atom.includes(1) },
-        get autoUnlocked() { return hasUpgrade('rp',3) },
-        get noSpend() { return hasUpgrade('bh',1) },
+        get autoUnlocked() { return player.ranks.tier.gte(4) },
+        get noSpend() { return player.ranks.tier.gte(8) },
 
         get res() { return player.mass },
         set res(v) { player.mass = v },
@@ -88,9 +88,9 @@ const BUILDINGS_DATA = {
 		icon: "mass_upg3",
         scale: "massUpg",
 
-        get isUnlocked() { return player.ranks.rank.gte(3) || player.mainUpg.atom.includes(1) },
-        get autoUnlocked() { return hasUpgrade('rp',3) },
-        get noSpend() { return hasUpgrade('bh',1) },
+        get isUnlocked() { return player.ranks.rank.gte(4) || player.mainUpg.atom.includes(1) },
+        get autoUnlocked() { return player.ranks.tier.gte(4) },
+        get noSpend() { return player.ranks.tier.gte(8) },
 
         get res() { return player.mass },
         set res(v) { player.mass = v },
@@ -229,31 +229,31 @@ const BUILDINGS_DATA = {
 		icon: "tickspeed",
         scale: "tickspeed",
 
-        get isUnlocked() { return player.rp.unl },
+        get isUnlocked() { return player.ranks.rank.gte(25) },
         get autoUnlocked() { return player.mainUpg.bh.includes(5) },
         get noSpend() { return player.mainUpg.atom.includes(2) },
 
         get allowPurchase() { return !CHALS.inChal(2) && !CHALS.inChal(6) && !CHALS.inChal(10) },
 
-        get res() { return player.rp.points },
-        set res(v) { player.rp.points = v },
+        get res() { return player.mass },
+        set res(v) { player.mass = v },
 
         cost(x=this.level) {
             let fp = E(1)
 
             if (hasElement(248)) fp = fp.mul(getEnRewardEff(0))
 
-            return Decimal.pow(2,x.div(fp).scaleEvery('tickspeed'))
+            return Decimal.pow(10,x.div(fp).scaleEvery('tickspeed'))
         },
         get bulk() {
             let fp = E(1)
 
             if (hasElement(248)) fp = fp.mul(getEnRewardEff(0))
 
-            return this.res.max(1).log(2).scaleEvery('tickspeed',true).mul(fp).add(1).floor()
+            return this.res.max(1).div(1500000).log(10).scaleEvery('tickspeed',true).mul(fp).add(1).floor()
         },
 
-        get_cost: x => format(x,0) + " Rage Power",
+        get_cost: x => formatMass(x),
 
         get beMultiplicative() { return hasAscension(0,1) },
 
@@ -266,12 +266,12 @@ const BUILDINGS_DATA = {
             t = t.mul(tmp.prim.eff[1][1])
             t = t.mul(tmp.radiation.bs.eff[1])
 
-            step = E(1.5)
+            step = E(1.25)
             step = step.add(tmp.chal.eff[6])
             step = step.add(tmp.chal.eff[2])
             step = step.add(tmp.atom.particles[0].powerEffect.eff2)
-            if (player.ranks.tier.gte(4)) step = step.add(RANKS.effect.tier[4]())
-            if (player.ranks.rank.gte(40)) step = step.add(RANKS.effect.rank[40]())
+            if (player.ranks.rank.gte(35)) step = step.add(RANKS.effect.rank[35]())
+            if (player.ranks.tier.gte(6)) step = step.add(RANKS.effect.tier[6]())    
             step = step.mul(tmp.bosons.effect.z_boson[0])
             step = tmp.md.bd3 ? step.pow(tmp.md.mass_eff) : step.mul(tmp.md.mass_eff)
             if (hasElement(191)) step = step.pow(elemEffect(191))
@@ -919,7 +919,7 @@ function getMassUpgradeCost(i, lvl) {
         
         if (i == 1 && player.ranks.rank.gte(2)) inc = inc.pow(0.8)
         if (i == 2 && player.ranks.rank.gte(3)) inc = inc.pow(0.8)
-        if (i == 3 && player.ranks.rank.gte(4)) inc = inc.pow(0.8)
+        if (i == 3 && player.ranks.rank.gte(5)) inc = inc.pow(0.8)
         if (player.ranks.tier.gte(3)) inc = inc.pow(0.8)
         cost = inc.pow(lvl.div(fp).scaleEvery("massUpg")).mul(start)
     }
@@ -941,7 +941,7 @@ function getMassUpgradeBulk(i) {
         
         if (i == 1 && player.ranks.rank.gte(2)) inc = inc.pow(0.8)
         if (i == 2 && player.ranks.rank.gte(3)) inc = inc.pow(0.8)
-        if (i == 3 && player.ranks.rank.gte(4)) inc = inc.pow(0.8)
+        if (i == 3 && player.ranks.rank.gte(5)) inc = inc.pow(0.8)
         if (player.ranks.tier.gte(3)) inc = inc.pow(0.8)
 
         if (player.mass.gte(start)) bulk = player.mass.div(start).max(1).log(inc).scaleEvery("massUpg",true).mul(fp).add(1).floor()

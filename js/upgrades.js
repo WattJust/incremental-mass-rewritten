@@ -53,7 +53,7 @@ const UPGS = {
                 
                 if (i == 1 && player.ranks.rank.gte(2)) inc = inc.pow(0.8)
                 if (i == 2 && player.ranks.rank.gte(3)) inc = inc.pow(0.8)
-                if (i == 3 && player.ranks.rank.gte(4)) inc = inc.pow(0.8)
+                if (i == 3 && player.ranks.rank.gte(5)) inc = inc.pow(0.8)
                 if (player.ranks.tier.gte(3)) inc = inc.pow(0.8)
                 cost = inc.pow(lvl.div(fp).scaleEvery("massUpg")).mul(start)
                 bulk = E(0)
@@ -65,7 +65,7 @@ const UPGS = {
         1: {
             unl() { return player.ranks.rank.gte(1) || player.mainUpg.atom.includes(1) },
             title: "Muscler",
-            start: E(10),
+            start: E(5),
             inc: E(1.5),
             effect(x) {
                 let step = E(1)
@@ -92,8 +92,8 @@ const UPGS = {
         2: {
             unl() { return player.ranks.rank.gte(2) || player.mainUpg.atom.includes(1) },
             title: "Booster",
-            start: E(100),
-            inc: E(4),
+            start: E(50),
+            inc: E(3),
             effect(x) {
                 let step = E(2)
                 if (player.ranks.rank.gte(5)) step = step.add(RANKS.effect.rank[5]())
@@ -117,15 +117,14 @@ const UPGS = {
             },
         },
         3: {
-            unl() { return player.ranks.rank.gte(3) || player.mainUpg.atom.includes(1) },
+            unl() { return player.ranks.rank.gte(4) || player.mainUpg.atom.includes(1) },
             title: "Stronger",
-            start: E(1000),
+            start: E(500),
             inc: E(9),
             effect(x) {
                 let xx = hasAscension(0,1)?x.add(1).mul(tmp.upgs.mass[3].bonus.add(1)):x.add(tmp.upgs.mass[3].bonus)
                 if (hasElement(81)) xx = xx.pow(1.1)
                 let ss = E(10)
-                if (player.ranks.rank.gte(34)) ss = ss.add(2)
                 if (player.mainUpg.bh.includes(9)) ss = ss.add(tmp.upgs.main?tmp.upgs.main[2][9].effect:E(0))
                 let step = E(1)
                 if (player.ranks.tetr.gte(2)) step = step.add(RANKS.effect.tetr[2]())

@@ -296,7 +296,7 @@ function updateTickspeedHTML() {
 	BUILDINGS.update('tickspeed')
 	BUILDINGS.update('accelerator')
 	/*
-	let unl = player.rp.unl
+	let unl = true
 
 	tmp.el.tickspeed_div.setDisplay(unl)
 	if (unl) {

@@ -6,7 +6,7 @@ const RESOURCES_DIS = {
         desc: (gs)=>formatMass(player.mass)+"<br>"+formatGain(player.mass, tmp.massGain.mul(gs), true),
     },
     rp: {
-        unl: ()=>true,
+        unl: ()=>player.bh.unl,
         icon: "rp",
         class: "red",
 

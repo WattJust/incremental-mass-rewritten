@@ -49,8 +49,10 @@ const FORMS = {
         x = x.add(BUILDINGS.eff('mass_1'))
         if (player.ranks.rank.gte(6)) x = x.mul(RANKS.effect.rank[6]())
         if (player.ranks.rank.gte(13)) x = x.mul(3)
+        if (player.ranks.rank.gte(45)) x = x.mul(RANKS.effect.rank[45]())    
         if (player.mainUpg.bh.includes(10)) x = x.mul(tmp.upgs.main?tmp.upgs.main[2][10].effect:E(1))
         if (player.ranks.rank.gte(380)) x = x.mul(RANKS.effect.rank[380]())
+        if (player.ranks.tier.gte(2)) x = x.mul(RANKS.effect.tier[2]())    
         if (!hasElement(162)) x = x.mul(tmp.stars.effect)
         if (hasTree("m1") && !hasElement(164)) x = x.mul(tmp.supernova.tree_eff.m1)
 
@@ -66,7 +68,7 @@ const FORMS = {
         if (!hasElement(199) || CHALS.inChal(15)) x = x.mul(BUILDINGS.eff('tickspeed'))
         else x = x.pow(BUILDINGS.eff('tickspeed'))
 
-        if (player.ranks.tier.gte(2)) x = x.pow(1.15)
+        if (player.ranks.tier.gte(2)) x = x.pow(1.1)
         if (player.ranks.rank.gte(180)) x = x.pow(1.025)
         if (!CHALS.inChal(3) || CHALS.inChal(10) || FERMIONS.onActive("03")) x = x.pow(tmp.chal.eff[3])
         if (tmp.c16active || player.md.active || CHALS.inChal(10) || FERMIONS.onActive("02") || FERMIONS.onActive("03") || CHALS.inChal(11)) {
@@ -276,17 +278,17 @@ const FORMS = {
         return p
     },
     tickspeed: {
-        cost(x=player.tickspeed) { return E(2).pow(x).floor() },
-        can() { return player.rp.points.gte(tmp.tickspeedCost) && !CHALS.inChal(2) && !CHALS.inChal(6) && !CHALS.inChal(10) },
+        cost(x=player.tickspeed) { return E(10).pow(x).floor().times(1500000) },
+        can() { return player.mass.gte(tmp.tickspeedCost) && player.rank.ranks.gte(25) && !CHALS.inChal(2) && !CHALS.inChal(6) && !CHALS.inChal(10) },
         buy() {
             if (this.can()) {
-                if (!player.mainUpg.atom.includes(2)) player.rp.points = player.rp.points.sub(tmp.tickspeedCost).max(0)
+                if (!player.mainUpg.atom.includes(2)) player.mass = player.mass.sub(tmp.tickspeedCost).max(0)
                 player.tickspeed = player.tickspeed.add(1)
             }
         },
         buyMax() { 
             if (this.can()) {
-                if (!player.mainUpg.atom.includes(2)) player.rp.points = player.rp.points.sub(tmp.tickspeedCost).max(0)
+                if (!player.mainUpg.atom.includes(2)) player.mass = player.mass.sub(tmp.tickspeedCost).max(0)
                 player.tickspeed = tmp.tickspeedBulk
             }
         },
@@ -301,12 +303,12 @@ const FORMS = {
             if (player.atom.unl) bonus = bonus.add(tmp.atom.atomicEff)
             bonus = bonus.mul(getEnRewardEff(4))
 
-            step = E(1.5)
+            step = E(1.25)
                 step = step.add(tmp.chal.eff[6])
                 step = step.add(tmp.chal.eff[2])
                 step = step.add(tmp.atom.particles[0].powerEffect.eff2)
-                if (player.ranks.tier.gte(4)) step = step.add(RANKS.effect.tier[4]())
-                if (player.ranks.rank.gte(40)) step = step.add(RANKS.effect.rank[40]())
+                if (player.ranks.rank.gte(35)) step = step.add(RANKS.effect.rank[35]())
+                if (player.ranks.tier.gte(6)) step = step.add(RANKS.effect.tier[6]())        
             step = step.mul(tmp.bosons.effect.z_boson[0])
             step = tmp.md.bd3 ? step.pow(tmp.md.mass_eff) : step.mul(tmp.md.mass_eff)
             if (hasElement(191)) step = step.pow(elemEffect(191))
@@ -384,10 +386,9 @@ const FORMS = {
     },
     rp: {
         gain() {
-            if (tmp.c16active || player.mass.lt(1e15) || CHALS.inChal(7) || CHALS.inChal(10)) return E(0)
-            let gain = player.mass.div(1e15).root(3)
+            if (tmp.c16active || player.mass.lt('1ee308') || CHALS.inChal(7) || CHALS.inChal(10)) return E(0)
+            let gain = player.mass.div('1ee308').root(3)
             if (player.ranks.rank.gte(14)) gain = gain.mul(2)
-            if (player.ranks.rank.gte(45)) gain = gain.mul(RANKS.effect.rank[45]())
             if (player.ranks.tier.gte(6)) gain = gain.mul(RANKS.effect.tier[6]())
             if (player.mainUpg.bh.includes(6)) gain = gain.mul(tmp.upgs.main?tmp.upgs.main[2][6].effect:E(1))
             if (hasTree("rp1")) gain = gain.mul(tmp.supernova.tree_eff.rp1)
@@ -426,7 +427,7 @@ const FORMS = {
         DM_gain() {
             if (tmp.c16active) return player.dark.matters.amt[0]
 
-            let gain = player.rp.points.div(1e20)
+            let gain = player.rp.points.div('1ee308')
             if (CHALS.inChal(7) || CHALS.inChal(10)) gain = player.mass.div(1e180)
             if (gain.lt(1)) return E(0)
             gain = gain.root(4)

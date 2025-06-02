@@ -1,11 +1,11 @@
 const SCALE_START = {
     super: {
-        rank: E(50),
+        rank: E(100),
 		tier: E(10),
 		tetr: E(7),
 		pent: E(15),
 		hex: E(10),
-        massUpg: E(100),
+        massUpg: E(250),
 		tickspeed: E(100),
 		bh_condenser: E(100),
 		gamma_ray: E(100),
