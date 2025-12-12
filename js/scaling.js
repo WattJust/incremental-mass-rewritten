@@ -1,12 +1,12 @@
 const SCALE_START = {
     super: {
-        rank: E(100),
+        rank: E(125),
 		tier: E(10),
 		tetr: E(7),
 		pent: E(15),
 		hex: E(10),
         massUpg: E(250),
-		tickspeed: E(100),
+		tickspeed: E(156),
 		bh_condenser: E(100),
 		gamma_ray: E(100),
 		supernova: E(15),
@@ -27,7 +27,7 @@ const SCALE_START = {
 		gal_prestige: E(10),
     },
 	hyper: {
-		rank: E(120),
+		rank: E(250),
 		tier: E(200),
 		tetr: E(60),
 		pent: E(60),
@@ -342,12 +342,13 @@ function getScalingStart(type, name) {
 	if (tmp.c18active && C18_SCALING.includes(name)) return start
 
 	if (type==0) {
-		if (name=="rank") {
-			if (CHALS.inChal(1) || CHALS.inChal(10)) return E(25)
-			start = start.add(tmp.chal?tmp.chal.eff[1].rank:0)
+	if (name=="rank") {
+			start = start.add(tmp.chal?tmp.chal.eff[1].times(3).floor():0)
+			if (CHALS.inChal(5)) start = E(1)
 		}
 		else if (name=="tier") {
 			if (player.mainUpg.atom.includes(5)) start = start.add(10)
+			if (CHALS.inChal(5)) start = E(1)
 		}
 		else if (name=="tetr") {
 			if (player.ranks.tier.gte(100)) start = start.add(5)
@@ -359,11 +360,12 @@ function getScalingStart(type, name) {
 			if (hasElement(184)) start = start.mul(elemEffect(184))
 		}
 		else if (name=="massUpg") {
-			if (CHALS.inChal(1) || CHALS.inChal(10)) return E(25)
+		 if(tmp.chal && player.ranks.rank.gte(170)|| CHALS.inChal(5) || CHALS.inChal(4) || CHALS.inChal(3) || CHALS.inChal(2) || CHALS.inChal(1) || CHALS.inChal(6) || CHALS.inChal(7) || CHALS.inChal(8) && tmp.chal)start = start.add(tmp.chal.eff[1].times(3).floor())
 			if (player.mainUpg.bh.includes(3)) start = start.add(tmp.upgs?tmp.upgs.main?tmp.upgs.main[2][3].effect:0:0)
+			if (player.ranks.tetr.gte(5)) start = start.add(CHALS.inChal(8)?0:RANKS.effect.tetr[5]())
 		}
-		else if (name=='tickspeed') {
-			if (CHALS.inChal(1) || CHALS.inChal(10)) return E(50)
+		else if (name=="tickspeed") {
+			if (player.ranks.tetr.gte(5)) start = start.add(CHALS.inChal(8)?0:RANKS.effect.tetr[5]())
 		}
 		else if (name=="prestige0") {
 			if (player.md.break.upgs[9].gte(1)) start = start.add(10)
@@ -392,7 +394,10 @@ function getScalingStart(type, name) {
 	else if (type==1) {
 		if (name=="tickspeed") {
 			if (player.mainUpg.rp.includes(14)) start = start.add(50)
-			if (player.ranks.tetr.gte(5)) start = start.add(RANKS.effect.tetr[5]())
+			if (player.ranks.tetr.gte(5)) start = start.add(CHALS.inChal(8)?0:RANKS.effect.tetr[5]())
+		}
+		else if (name=="massUpg") {
+			if (player.ranks.tetr.gte(5)) start = start.add(CHALS.inChal(8)?0:RANKS.effect.tetr[5]())
 		}
 		else if (name=="rank") {
 			if (player.mainUpg.atom.includes(10)) start = start.add(tmp.upgs?tmp.upgs.main?tmp.upgs.main[3][10].effect:0:0)
@@ -416,7 +421,6 @@ function getScalingStart(type, name) {
 			if (hasElement(62)) start = start.add(tmp.elements.effect[62])
 		}
 		else if (name=="tickspeed") {
-			if (player.ranks.tetr.gte(5)) start = start.add(RANKS.effect.tetr[5]())
 		}
 		else if (name=="massUpg") {
 			if (hasElement(189)) start = start.pow(1.5)
@@ -447,7 +451,7 @@ function getScalingStart(type, name) {
 			start = start.mul(getEnRewardEff(0))
 			if (hasPrestige(0,867)) start = start.pow(8)
 		}
-		else if (name == "supernova") {if (hasPrestige(1,2)) start = start.add(100)}
+		else if (name == "supernova") {if (hasPrestige(1,2)) start = start.add(0)}
 		else if (name=='tier') {
 			if (hasElement(155)) start = start.mul(elemEffect(155))
 			if (hasElement(181)) start = start.mul(10)
@@ -515,20 +519,29 @@ function getScalingPower(type, name) {
 	if (type==0) {
 		if (name=="rank") {
 			if (player.mainUpg.rp.includes(10)) power = power.mul(0.8)
-			if (player.ranks.tetr.gte(4)) power = power.mul(RANKS.effect.tetr[4]())
+			if (player.ranks.tetr.gte(4)) power = power.mul(CHALS.inChal(8)?1:RANKS.effect.tetr[4]())
+			if (CHALS.inChal(5)) power = power.mul(0.95)
+			if (hasPrestige(1,2)) power = power.mul(0.8)	
 		}
 		else if (name=="tier") {
-			if (player.ranks.tetr.gte(4)) power = power.mul(0.8)
+			if (player.ranks.tetr.gte(4)) power = power.mul(CHALS.inChal(8)?1:0.75)
 			if (hasElement(37)) power = power.mul(tmp.elements.effect[37])
+			if (player.ranks.rank.gte(278)) power = power.mul(RANKS.effect.rank[278]())
+			if (CHALS.inChal(5)) power = power.mul(0.95)
+			if (hasPrestige(1,2)) power = power.mul(0.8)	
 		}
 		else if (name=="tetr") {
 			if (hasElement(74)) power = power.mul(0.75)
+			if (hasPrestige(1,2)) power = power.mul(0.8)	
 		}
 		else if (name=="massUpg") {
 			if (player.mainUpg.rp.includes(8)) power = power.mul(tmp.upgs.main?tmp.upgs.main[1][8].effect:1)
+			if (player.ranks.rank.gte(278)) power = power.mul(RANKS.effect.rank[278]())
+			if (hasPrestige(1,2)) power = power.mul(0.8)	
 		}
 		else if (name=='tickspeed') {
-			power = power.mul(tmp.chal?tmp.chal.eff[1].tick:1)
+		if (player.ranks.tier.gte(19)) power = power.mul(RANKS.effect.tier[19]())
+		if (hasPrestige(1,2)) power = power.mul(0.8)	
 		}
 		else if (name=='bh_condenser') {
 			if (hasElement(15)) power = power.mul(0.8)
@@ -540,7 +553,6 @@ function getScalingPower(type, name) {
 			if (hasTree("fn3")) power = power.mul(0.925)
 		}
 		else if (name=="cosmic_str") {
-			if (hasPrestige(0,24)) power = power.mul(0.8)
 			if (hasElement(137)) power = power.mul(0.75)
 			if (hasPrestige(1,15)) power = power.mul(prestigeEff(1,15,1))
 		}
@@ -565,19 +577,26 @@ function getScalingPower(type, name) {
 	}
 	else if (type==1) {
 		if (name=="rank") {
-			if (player.ranks.tetr.gte(1)) power = power.mul(0.85)
 			if (hasElement(27)) power = power.mul(0.75)
+			if (hasPrestige(1,2)) power = power.mul(0.8)	
 		}
 		else if (name=="tier") {
-			if (player.ranks.tetr.gte(4)) power = power.mul(0.8)
+			if (player.ranks.tetr.gte(4)) power = power.mul(CHALS.inChal(8)?1:0.8)
 			if (hasElement(37)) power = power.mul(tmp.elements.effect[37])
+			if (hasPrestige(1,2)) power = power.mul(0.8)	
+		}
+		else if (name=="tetr") {
+			if (hasPrestige(1,2)) power = power.mul(0.8)	
 		}
 		else if (name=="massUpg") {
 			if (player.mainUpg.rp.includes(8)) power = power.mul(tmp.upgs.main?tmp.upgs.main[1][8].effect:1)
+			if (hasPrestige(1,2)) power = power.mul(0.8)	
 		}
 		else if (name=='tickspeed') {
 			if (player.mainUpg.bh.includes(12)) power = power.mul(0.85)
 			if (hasElement(27)) power = power.mul(0.75)
+			if (player.ranks.tier.gte(19)) power = power.mul(RANKS.effect.tier[19]())
+			if (hasPrestige(1,2)) power = power.mul(0.8)	
 		}
 		else if (name=='bh_condenser') {
 			if (hasElement(55)) power = power.mul(0.75)

@@ -32,7 +32,7 @@ function updateChalHTML() {
             tmp.el.chal_ch_title.setTxt(`[${player.chal.choosed}]${CHALS.getScaleName(player.chal.choosed)} ${chal.title} [${format(player.chal.comps[player.chal.choosed],0)+(tmp.chal.max[player.chal.choosed].gte(EINF)?"":"/"+format(tmp.chal.max[player.chal.choosed],0))} Completions]`)
             tmp.el.chal_ch_desc.setHTML(chal.desc)
             tmp.el.chal_ch_reset.setTxt(CHALS.getReset(player.chal.choosed))
-            tmp.el.chal_ch_goal.setTxt("Goal: "+CHALS.getFormat(player.chal.choosed)(tmp.chal.goal[player.chal.choosed])+CHALS.getResName(player.chal.choosed))
+            tmp.el.chal_ch_goal.setTxt("Goal: "+CHALS.getFormat(player.chal.choosed)(tmp.chal.goal[player.chal.choosed]))
             tmp.el.chal_ch_reward.setHTML("Reward: "+(typeof chal.reward == 'function' ? chal.reward() : chal.reward))
             tmp.el.chal_ch_eff.setHTML("Currently: "+chal.effDesc(tmp.chal.eff[player.chal.choosed]))
         }
@@ -86,12 +86,12 @@ const CHALS = {
     },
     inChal(x) { return player.chal.active == x || (player.chal.active == 15 && x <= 12) || (player.chal.active == 20 && x <= 19) },
     reset(x, chal_reset=true) {
-        if (x < 5) FORMS.bh.doReset()
-        else if (x < 9) ATOM.doReset(chal_reset)
-        else if (x < 13) SUPERNOVA.reset(true, true)
-        else if (x < 16) DARK.doReset(true)
-        else if (x == 16) MATTERS.final_star_shard.reset(true)
-        else INF.doReset()
+        if (x < 9)             
+            player.mass = E(0)
+            player.ranks.rank = E(0)
+            for (let x = 1; x <= UPGS.mass.cols; x++) BUILDINGS.reset("mass_"+x) 
+            player.ranks.tier = E(0)
+            BUILDINGS.reset('tickspeed')
     },
     exit(auto=false) {
         if (!player.chal.active == 0) {
@@ -125,18 +125,18 @@ const CHALS = {
     },
     getResource(x) {
         if (x < 5 || x > 8) return player.mass
-        return player.bh.mass
+        return player.mass
     },
     getResName(x) {
         if (x < 5 || x > 8) return ''
-        return ' of Black Hole'
+        return ''
     },
     getFormat(x) {
         return formatMass
     },
     getReset(x) {
-        if (x < 5) return "Entering this challenge will force dark matter reset."
-        else if (x < 9) return "Entering this challenge will force atom reset."
+        if (x < 9) return "Entering this challenge will force tetr reset."
+        else if (x < 900) return "Entering this challenge will force atom reset."
         else if (x < 13) return "Entering challenge will supernova reset."
         else if (x < 16) return "Entering challenge will force a Darkness reset."
         else if (x == 16) return "Entering challenge will force an FSS reset."
@@ -153,7 +153,7 @@ const CHALS = {
             if (hasElement(286)) x = x.add(500)
         }
         else if (i < 16) {
-            if (i <= 4 && !hasPrestige(2,25)) x = x.add(tmp.chal?tmp.chal.eff[7]:0)
+            if (i <= 8 && !hasPrestige(2,25) && player.ranks.tetr.gte(8)) x = x.mul(RANKS.effect.tetr[8]())
             if (hasElement(13) && (i==5||i==6)) x = x.add(tmp.elements.effect[13])
             if (hasElement(20) && (i==7)) x = x.add(50)
             if (hasElement(41) && (i==7)) x = x.add(50)
@@ -318,37 +318,37 @@ const CHALS = {
         return {goal, bulk}
     },
     1: {
-        title: "Instant Scale",
-        desc: "Super rank and mass upgrade scaling starts at 25. Also, Super tickspeed starts at 50.",
-        reward: ()=>hasBeyondRank(2,20)?`Supercritical Rank & All Fermions Tier scaling starts later, Super Overpower scales weaker based on completions.`:`Super Rank starts later, Super Tickspeed scales weaker based on completions.`,
+        title: "Hyper Softcap",
+        desc: "Softcap of Stronger starts on 2 and it is twice as strong.",
+        reward: ()=>hasBeyondRank(2,20)?`Supercritical Rank & All Fermions Tier scaling starts later, Super Overpower scales weaker based on completions.`:`Stronger softcap starts later based on completions.`,
         max: E(100),
-        inc: E(5),
+        inc: E(2.5),
         pow: E(1.3),
-        start: E(1.5e58),
+        start: E(1.619e23),
         effect(x) {
-            let c = hasBeyondRank(2,20)
-            let rank = c?E(0):x.softcap(20,4,1).floor()
-            let tick = c?E(1):E(0.96).pow(x.root(2))
-            let scrank = x.add(1).log10().div(10).add(1).root(3)
-            let over = Decimal.pow(0.99,x.add(1).log10().root(2)).max(.5)
-            return {rank: rank, tick: tick, scrank, over}
+        x = x.mul(tmp.chal.eff[7])
+        if (hasPrestige(0,5)) x = x.mul(prestigeEff(0,5,0))
+            let ret = x.pow(player.ranks.rank.gte(210)?0.85:0.67)
+            return ret
         },
-        effDesc(x) { return hasBeyondRank(2,20)?formatMult(x.scrank)+" later to Supercritical Rank & All Fermions starting, "+formatReduction(x.over)+" weaker to Super Overpower scaling":"+"+format(x.rank,0)+" later to Super Rank starting, "+format(E(1).sub(x.tick).mul(100))+"% weaker to Super Tickspeed scaling" },
+        effDesc(x) { return"+"+format(x)+" later to Stronger softcap"},
     },
     2: {
-        unl() { return player.chal.comps[1].gte(1) || player.atom.unl },
+        unl() { return player.chal.comps[1].gte(1) && player.ranks.rank.gte(160) ||  player.chal.comps[2].gte(1) || player.atom.unl },
         title: "Anti-Tickspeed",
         desc: "You cannot buy Tickspeed.",
-        reward: `Each completion adds +7.5% to Tickspeed Power.`,
+        reward: `Each completion adds +5% to Tickspeed Power.`,
         max: E(100),
         inc: E(10),
         pow: E(1.3),
-        start: E(1.989e40),
+        start: E(1.5e81),
         effect(x) {
+        x = x.mul(tmp.chal.eff[7])
+        if (hasPrestige(0,5)) x = x.mul(prestigeEff(0,5,0))
             let sp = E(0.5)
             if (hasElement(8)) sp = sp.pow(0.25)
             if (hasElement(39)) sp = E(1)
-            let ret = x.mul(0.075).add(1).softcap(1.3,sp,0).sub(1)
+            let ret = x.mul(0.05).add(1).softcap(1.3,sp,0).sub(1)
             return ret
         },
         effDesc(x) { return "+"+format(x.mul(100))+"%"+(x.gte(0.3)?" <span class='soft'>(softcapped)</span>":"") },
@@ -356,14 +356,16 @@ const CHALS = {
     3: {
         unl() { return player.chal.comps[2].gte(1) || player.atom.unl },
         title: "Melted Mass",
-        desc: "Mass gain softcap starts 150 OoMs eariler, and is stronger.",
+        desc: "Mass gain softcap starts 140 OoMs eariler, and is stronger.",
         reward: `Mass gain is raised based on completions (doesn't apply in this challenge).`,
         max: E(100),
         inc: E(25),
         pow: E(1.25),
-        start: E(2.9835e49),
+        start: E(1.989e39),
         effect(x) {
             if (hasElement(64)) x = x.mul(1.5)
+            x = x.mul(tmp.chal.eff[7])
+            if (hasPrestige(0,5)) x = x.mul(prestigeEff(0,5,0))
             let ret = hasElement(133) ? x.root(4/3).mul(0.01).add(1) : x.root(1.5).mul(0.01).add(1)
             return overflow(ret.softcap(3,0.25,0),1e12,0.5)
         },
@@ -371,32 +373,35 @@ const CHALS = {
     },
     4: {
         unl() { return player.chal.comps[3].gte(1) || player.atom.unl },
-        title: "Weakened Rage",
-        desc: "Rage Power gain is rooted by 10. Additionally, mass gain softcap starts 100 OoMs eariler.",
-        reward: `Rage Powers gain is raised by completions.`,
+        title: "Weakened Mass",
+        desc: "Mass gain is ^2 and then dialated by 0.8.",
+        reward: `Mass gain is multiplied based on completions.`,
         max: E(100),
-        inc: E(30),
+        inc: E(32),
         pow: E(1.25),
-        start: E(1.736881338559743e133),
+        start: E(1.5e62),
         effect(x) {
             if (hasElement(64)) x = x.mul(1.5)
-            let ret = hasElement(133) ? x.root(4/3).mul(0.01).add(1) : x.root(1.5).mul(0.01).add(1)
-            return overflow(ret.softcap(3,0.25,0),1e12,0.5)
+            x = x.mul(tmp.chal.eff[7])
+            if (hasPrestige(0,5)) x = x.mul(prestigeEff(0,5,0))
+            let ret = E(x.mul(2.5).add(1)).pow(x.add(1).pow(player.ranks.rank.gte(595)?2:0.5)) 
+            return overflow(ret.softcap(1e25,0.25,0),'1e1024',0.5)
         },
-        effDesc(x) { return "^"+format(x)+(x.gte(3)?" <span class='soft'>(softcapped)</span>":"") },
+        effDesc(x) { return "x"+format(x)+(x.gte(1e25)?" <span class='soft'>(softcapped)</span>":"") },
     },
     5: {
-        unl() { return player.atom.unl },
-        title: "No Rank",
-        desc: "You cannot rank up.",
-        reward: ()=>hasAscension(0,22)?`Supercritical Rank, Ultra Hex scale weaker based on completions.`:hasCharger(3)?`Exotic Rank & Tier, Ultra Prestige Level scale weaker based on completions.`:`Rank requirement is weaker based on completions.`,
+        unl() { return player.chal.comps[5].gte(1) ||player.ranks.rank.gte(290) },
+        title: "(Almost) No Rank",
+        desc: "Super Rank and tier scaling starts instantly but scaling is slightly weaker.",
+        reward: ()=>hasAscension(0,22)?`Supercritical Rank, Ultra Hex scale weaker based on completions.`:hasCharger(3)?`Exotic Rank & Tier, Ultra Prestige Level scale weaker based on completions.`:`Rank and Tier requirement is weaker based on completions.`,
         max: E(50),
-        inc: E(50),
+        inc: E(100),
         pow: E(1.25),
-        start: E(1.5e136),
+        start: E(1.5e216),
         effect(x) {
             let c = hasCharger(3)
             if (!c && hasPrestige(1,127)) return E(1)
+            if (hasPrestige(0,5)) x = x.mul(prestigeEff(0,5,0))    
             let ret = c?Decimal.pow(0.97,x.add(1).log10().root(4)):E(0.97).pow(x.root(2).softcap(5,0.5,0))
             if (hasAscension(0,22)) ret = ret.root(2)
             if (hasElement(288)) ret = ret.pow(2)
@@ -406,51 +411,54 @@ const CHALS = {
     },
     6: {
         unl() { return player.chal.comps[5].gte(1) || player.supernova.times.gte(1) || quUnl() },
-        title: "No Tickspeed & Condenser",
-        desc: "You cannot buy Tickspeed or BH Condenser.",
-        reward: `Every completion adds 10% to tickspeed and BH condenser power.`,
+        title: "No Tickspeed & Stronger",
+        desc: "You cannot buy Tickspeed and Stronger.",
+        reward: `Every completion adds 2.5% to Tickspeed and Stronger power.`,
         max: E(50),
-        inc: E(64),
+        inc: E(125),
         pow: E(1.25),
         start: E(1.989e38),
         effect(x) {
-            let ret = x.mul(0.1).add(1).softcap(1.5,hasElement(39)?1:0.5,0).sub(1)
+            if (hasPrestige(0,5)) x = x.mul(prestigeEff(0,5,0))
+            let ret = x.mul(0.025).add(1).softcap(1.5,hasElement(39)?1:0.5,0).sub(1)
             return ret
         },
-        effDesc(x) { return "+"+format(x)+"x"+(x.gte(0.5)?" <span class='soft'>(softcapped)</span>":"") },
+        effDesc(x) { return "+"+format(x)+"x"+(x.gte(2)?" <span class='soft'>(softcapped)</span>":"") },
     },
     7: {
         unl() { return player.chal.comps[6].gte(1) || player.supernova.times.gte(1) || quUnl() },
-        title: "No Rage Powers",
-        desc: "You cannot gain rage powers. Instead, dark matters are gained from mass at a reduced rate. Additionally, mass gain softcap is stronger.",
-        reward: ()=>(hasPrestige(2,25)?`Pre-Impossible challenges scale weaker by completions, but this reward doesn't affect C7.`:`Each completion increases challenges 1-4 cap by 2.`) + `<br><span class="yellow">On 16th completion, unlock Elements</span>`,
+        title: "The Reality",
+        desc: "You are trapped in challenges 1-4.",
+        reward: ()=>(hasPrestige(2,25)?`Pre-Impossible challenges scale weaker by completions, but this reward doesn't affect C7.`:`Increase rewards from challenges 1-4.`),
         max: E(50),
-        inc: E(64),
+        inc: E(5),
         pow: E(1.25),
-        start: E(1.5e76),
+        start: E(1.619e26),
         effect(x) {
             let c = hasPrestige(2,25)
-            let ret = c?Decimal.pow(0.987,x.add(1).log10().root(2)):x.mul(2)
+            if (hasPrestige(0,5)) x = x.mul(prestigeEff(0,5,0))
+            let ret = c?Decimal.pow(0.987,x.add(1).log10().root(2)):x.pow(player.ranks.tier.gte(26)?0.55:0.35).div(player.ranks.tier.gte(26)?70:100).add(player.ranks.tier.gte(26)?1.025:1)
             if (hasElement(5)) ret = c?ret.pow(2):ret.mul(2)
-            return c?ret:ret.floor()
+            return ret
         },
-        effDesc(x) { return hasPrestige(2,25)?formatReduction(x)+" weaker":"+"+format(x,0) },
+        effDesc(x) { return hasPrestige(2,25)?formatReduction(x)+" weaker":"+"+format(x.sub(1).mul(100))+"%"},
     },
     8: {
         unl() { return player.chal.comps[7].gte(1) || player.supernova.times.gte(1) || quUnl() },
-        title: "White Hole",
-        desc: "Dark Matter & Mass from Black Hole gains are rooted by 8.",
-        reward: `Dark Matter & Mass from Black Hole gains are raised by completions.<br><span class="yellow">On first completion, unlock 3 rows of Elements</span>`,
+        title: "Useless Tetr's",
+        desc: "All non QoL tetr rewards are disabled.",
+        reward: `Multiply effective rank tier and tetr amount by completions.<br><span class="yellow">On 8th completion, unlock Prestiges</span>`,
         max: E(50),
-        inc: E(80),
-        pow: E(1.3),
-        start: E(1.989e38),
+        inc: E(128),
+        pow: E(1.25),
+        start: E('1.5e556'),
         effect(x) {
             if (hasElement(64)) x = x.mul(1.5)
-            let ret = hasElement(133) ? x.root(1.5).mul(0.025).add(1) : x.root(1.75).mul(0.02).add(1)
-            return overflow(ret.softcap(2.3,0.25,0),1e10,0.5)
+            if (hasPrestige(0,5)) x = x.mul(prestigeEff(0,5,0))    
+            let ret = hasElement(133) ? x.root(1.5).mul(0.025).add(1) : x.root(2).mul(0.035).add(1)
+            return overflow(ret.softcap(1.5,0.25,0),1e10,0.5)
         },
-        effDesc(x) { return "^"+format(x)+(x.gte(2.3)?" <span class='soft'>(softcapped)</span>":"") },
+        effDesc(x) { return "x"+format(x)+(x.gte(1.5)?" <span class='soft'>(softcapped)</span>":"") },
     },
     9: {
         unl() { return hasTree("chal4") },

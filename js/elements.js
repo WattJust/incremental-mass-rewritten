@@ -43,7 +43,7 @@ function setupHTML() {
 			<button id="pres_auto_${x}" class="btn" style="width: 80px;" onclick="PRESTIGES.autoSwitch(${x})">OFF</button>
 			<span id="pres_scale_${x}""></span>${PRESTIGES.fullNames[x]} <h4 id="pres_amt_${x}">X</h4><br><br>
 			<button onclick="PRESTIGES.reset(${x})" class="btn reset" id="pres_${x}">
-				${x>0?"Reset your "+PRESTIGES.fullNames[x-1]+"s":'Force a Quantum reset'}, but ${PRESTIGES.fullNames[x]} up.<span id="pres_desc_${x}"></span><br>
+				${x>0?"Reset your "+PRESTIGES.fullNames[x-1]+"s":'Reset Tetrs and Challenges'}, but ${PRESTIGES.fullNames[x]} up.<span id="pres_desc_${x}"></span><br>
 				Req: <span id="pres_req_${x}">X</span>
 			</button>
 		</div>`

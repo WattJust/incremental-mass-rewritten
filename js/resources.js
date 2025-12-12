@@ -39,7 +39,7 @@ const RESOURCES_DIS = {
         resetBtn() { ATOM.reset() },
     },
     quarks: {
-        unl: ()=>player.atom.unl,
+        unl: ()=>player.bh.unl,
         icon: "quark",
         class: "quark_color",
 

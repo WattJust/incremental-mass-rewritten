@@ -1668,7 +1668,7 @@ const ELEMENTS = {
                 else {
                     if (player.supernova.times.gte(1)) u = 49+5
                     else {
-                        if (player.chal.comps[8].gte(1)) u += 14
+                        if (player.chal.comps[16].gte(1)) u += 14
                         if (hasElement(18)) u += 3
                         if (MASS_DILATION.unlocked()) u += 15
                         if (STARS.unlocked()) u += 18

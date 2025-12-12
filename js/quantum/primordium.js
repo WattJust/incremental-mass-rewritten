@@ -168,7 +168,6 @@ function updatePrimordiumTemp() {
             else if (hasTree('qu_qol11') && i < 6) pp = pt
             else if (hasTree('qu_qol12') && i < 8) pp = pt
 
-            if (hasPrestige(1,4)) b = b.add(5)
         }
         tp.parts[i] = pp
         tp.bonus[i] = b

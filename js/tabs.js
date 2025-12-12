@@ -36,7 +36,7 @@ const TABS = {
         1: [
             { id: "Ranks Rewards" },
             { id: "Scaling", unl() { return tmp.scaling ? tmp.scaling.super.length>0 : false } },
-            { id: "Prestige Rewards", unl() { return hasUpgrade("br",9) } },
+            { id: "Prestige Rewards", unl() { return player.chal.comps[8].gte(8) } },
             { id: "Beyond-Ranks Rewards", unl() { return tmp.brUnl } },
             { id: "Ascension Rewards", unl() { return tmp.ascensions_unl } },
         ],
@@ -50,7 +50,7 @@ const TABS = {
         ],
         4: [
             { id: "Particles" },
-            { id: "Elements", unl() { return player.chal.comps[7].gte(16) || player.supernova.times.gte(1) || quUnl() } },
+            { id: "Elements", unl() { return player.chal.comps[7].gte(8) || player.supernova.times.gte(1) || quUnl() } },
             { id: "Mass Dilation", unl() { return MASS_DILATION.unlocked() }, style: "dilation" },
             { id: "Break Dilation", unl() { return hasUpgrade("br",9) }, style: "break_dilation" },
             { id: "Exotic Atoms", unl() { return tmp.eaUnl } },

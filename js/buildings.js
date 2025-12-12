@@ -7,8 +7,9 @@ const BUILDINGS_DATA = {
         scale: "massUpg",
 
         get isUnlocked() { return player.ranks.rank.gte(1) || player.mainUpg.atom.includes(1) },
-        get autoUnlocked() { return player.ranks.tier.gte(4) },
-        get noSpend() { return player.ranks.tier.gte(8) },
+        get autoUnlocked() { return player.ranks.tier.gte(4) ||
+player.ranks.tetr.gte(1) || hasPrestige(0,1) || hasPrestige(1,1)},
+        get noSpend() { return player.ranks.tier.gte(8) || player.ranks.tetr.gte(3) || hasPrestige(0,1) || hasPrestige(1,1)},
 
         get res() { return player.mass },
         set res(v) { player.mass = v },
@@ -24,7 +25,9 @@ const BUILDINGS_DATA = {
             let power = E(1)
             if (player.ranks.rank.gte(3)) power = power.add(RANKS.effect.rank[3]())
             power = power.mul(BUILDINGS.eff('mass_2'))
-
+            if (hasPrestige(0,6)) power = power.mul(prestigeEff(0,6,0))
+            power = power.pow(BUILDINGS.eff('mass_4'))
+            if (hasPrestige(0,2)) power = power.pow(prestigeEff(0,2,0))
             let effect = power.mul(x)
             if (hasElement(209)) effect = effect.pow(elemEffect(209))
 
@@ -48,8 +51,9 @@ const BUILDINGS_DATA = {
         scale: "massUpg",
 
         get isUnlocked() { return player.ranks.rank.gte(2) || player.mainUpg.atom.includes(1) },
-        get autoUnlocked() { return player.ranks.tier.gte(4) },
-        get noSpend() { return player.ranks.tier.gte(8) },
+        get autoUnlocked() { return player.ranks.tier.gte(4) ||
+player.ranks.tetr.gte(1) || hasPrestige(0,1) || hasPrestige(1,1)},
+        get noSpend() { return player.ranks.tier.gte(8) || player.ranks.tetr.gte(3) || hasPrestige(0,1) || hasPrestige(1,1)},
 
         get res() { return player.mass },
         set res(v) { player.mass = v },
@@ -65,6 +69,8 @@ const BUILDINGS_DATA = {
             let step = E(2)
             if (player.ranks.rank.gte(5)) step = step.add(RANKS.effect.rank[5]())
             step = step.pow(BUILDINGS.eff('mass_3'))
+            step = step.pow(BUILDINGS.eff('mass_4'))
+            if (hasPrestige(0,2)) step = step.pow(prestigeEff(0,2,0))
 
             let ret = step.mul(x).add(1)//.softcap("ee14",0.95,2)
             if (hasElement(203)) ret = ret.pow(elemEffect(203))
@@ -89,9 +95,10 @@ const BUILDINGS_DATA = {
         scale: "massUpg",
 
         get isUnlocked() { return player.ranks.rank.gte(4) || player.mainUpg.atom.includes(1) },
-        get autoUnlocked() { return player.ranks.tier.gte(4) },
-        get noSpend() { return player.ranks.tier.gte(8) },
-
+        get autoUnlocked() { return player.ranks.tier.gte(4) ||
+player.ranks.tetr.gte(1) || hasPrestige(0,1) || hasPrestige(1,1)},
+        get noSpend() { return player.ranks.tier.gte(8) || player.ranks.tetr.gte(3) || hasPrestige(0,1) || hasPrestige(1,1)},
+        get allowPurchase() { return !CHALS.inChal(6) && !CHALS.inChal(10) },
         get res() { return player.mass },
         set res(v) { player.mass = v },
 
@@ -110,20 +117,28 @@ const BUILDINGS_DATA = {
             let ss = E(10)
             if (player.ranks.rank.gte(34)) ss = ss.add(2)
             if (player.mainUpg.bh.includes(9)) ss = ss.add(tmp.upgs.main?tmp.upgs.main[2][9].effect:E(0))
+            ss = ss.add(tmp.chal?tmp.chal.eff[1]:0)
+            if (CHALS.inChal(1) ||CHALS.inChal(7)) ss = E(2)
             let step = E(1)
             if (player.ranks.tetr.gte(2)) step = step.add(RANKS.effect.tetr[2]())
+            step = step.add(tmp.chal.eff[6])
             if (player.mainUpg.rp.includes(9)) step = step.add(0.25)
             if (player.mainUpg.rp.includes(12)) step = step.add(tmp.upgs.main?tmp.upgs.main[1][12].effect:E(0))
             if (hasElement(4)) step = step.mul(tmp.elements.effect[4])
             if (player.md.upgs[3].gte(1)) step = step.mul(tmp.md.upgs[3].eff)
             step = step.pow(BUILDINGS.eff('mass_4'))
+            if (hasPrestige(0,2)) step = step.pow(prestigeEff(0,2,0))
 
             let sp = 0.5
             if (player.mainUpg.atom.includes(9)) sp *= 1.15
-            if (player.ranks.tier.gte(30)) sp *= 1.1
+            if (player.ranks.tier.gte(19)) sp *= 1.1111
+            if (player.ranks.tier.gte(30)) sp *= 1.1 
+            if (hasPrestige(0,12)) sp *= 1.1
+            if (player.ranks.rank.gte(710)) sp *= (RANKS.effect.rank[710]().pow(-1))           
+            if (CHALS.inChal(1) || CHALS.inChal(7)) sp *= 0.5
             let sp2 = 0.1
             let ss2 = E(5e15)
-            let sp3 = hasPrestige(0,12)?0.525:0.5
+            let sp3 = 0.5
             if (hasElement(85)) {
                 sp2 **= 0.9
                 ss2 = ss2.mul(3)
@@ -187,7 +202,7 @@ const BUILDINGS_DATA = {
 		icon: "mass_upg4",
         scale: "massUpg4",
 
-        get isUnlocked() { return hasElement(202) || hasInfUpgrade(2) },
+        get isUnlocked() { return  (player.ranks.rank.gte(278)) || hasInfUpgrade(2) },
         get autoUnlocked() { return true },
         get noSpend() { return true },
 
@@ -202,7 +217,7 @@ const BUILDINGS_DATA = {
         effect(x) {
             let xx = x
                 
-            let step = E(.005)
+            let step = E(.0125)
             if (hasUpgrade('rp',17)) step = step.add(.005)
             if (tmp.inf_unl) step = step.add(theoremEff('atom',2,0))
 
@@ -222,7 +237,7 @@ const BUILDINGS_DATA = {
         },
 
         get_power: x => "+^"+format(x.power),
-        get_effect: x => "^"+format(x.effect)+" to Stronger Power"+x.effect.softcapHTML(x.ss),
+        get_effect: x => "^"+format(x.effect)+" to previous mass upgrades Power"+x.effect.softcapHTML(x.ss),
     },
     tickspeed: {
         name: "Tickspeed",
@@ -230,10 +245,10 @@ const BUILDINGS_DATA = {
         scale: "tickspeed",
 
         get isUnlocked() { return player.ranks.rank.gte(25) },
-        get autoUnlocked() { return player.mainUpg.bh.includes(5) },
-        get noSpend() { return player.mainUpg.atom.includes(2) },
+        get autoUnlocked() { return player.mainUpg.bh.includes(5) || hasPrestige(0,1) || hasPrestige(1,1)},
+        get noSpend() { return player.mainUpg.atom.includes(2) || hasPrestige(0,1) || hasPrestige(1,1)},
 
-        get allowPurchase() { return !CHALS.inChal(2) && !CHALS.inChal(6) && !CHALS.inChal(10) },
+        get allowPurchase() { return !CHALS.inChal(2) && !CHALS.inChal(6) && !CHALS.inChal(7) && !CHALS.inChal(10) },
 
         get res() { return player.mass },
         set res(v) { player.mass = v },
@@ -243,14 +258,14 @@ const BUILDINGS_DATA = {
 
             if (hasElement(248)) fp = fp.mul(getEnRewardEff(0))
 
-            return Decimal.pow(10,x.div(fp).scaleEvery('tickspeed'))
+            return E(10).pow(x.div(fp).scaleEvery('tickspeed')).mul(1.5).root(hasPrestige(0,7)?(prestigeEff(0,3,0)):1).div((hasPrestige(0,7))?(prestigeEff(0,3,0)):1)
         },
         get bulk() {
             let fp = E(1)
 
             if (hasElement(248)) fp = fp.mul(getEnRewardEff(0))
 
-            return this.res.max(1).div(1500000).log(10).scaleEvery('tickspeed',true).mul(fp).add(1).floor()
+            return this.res.max(1).mul((hasPrestige(0,7))?(prestigeEff(0,3,0)):1).pow(hasPrestige(0,7)?(prestigeEff(0,3,0)):1).div(1.5).log(10).scaleEvery('tickspeed',true).mul(fp).add(1).floor()
         },
 
         get_cost: x => formatMass(x),
@@ -271,12 +286,15 @@ const BUILDINGS_DATA = {
             step = step.add(tmp.chal.eff[2])
             step = step.add(tmp.atom.particles[0].powerEffect.eff2)
             if (player.ranks.rank.gte(35)) step = step.add(RANKS.effect.rank[35]())
-            if (player.ranks.tier.gte(6)) step = step.add(RANKS.effect.tier[6]())    
+            if (player.ranks.tier.gte(6)) step = step.add(RANKS.effect.tier[6]())
+            if (player.ranks.tetr.gte(2)) step = step.add(RANKS.effect.tetr[2]()) 
             step = step.mul(tmp.bosons.effect.z_boson[0])
             step = tmp.md.bd3 ? step.pow(tmp.md.mass_eff) : step.mul(tmp.md.mass_eff)
             if (hasElement(191)) step = step.pow(elemEffect(191))
             step = step.pow(tmp.qu.chroma_eff[0])
             if (hasTree("t1")) step = step.pow(1.15)
+            if (hasPrestige(0,2)) step = step.pow(prestigeEff(0,2,0))    
+            if (hasPrestige(1,3)) step = step.pow(prestigeEff(1,3))    
 
             ss = ss.mul(tmp.radiation.bs.eff[13])
             let p = 0.1
@@ -284,7 +302,6 @@ const BUILDINGS_DATA = {
                 ss = ss.pow(2)
                 p **= 0.5
             }
-            if (hasPrestige(0,6)) ss = ss.pow(100)
             if (hasElement(102)) ss = ss.pow(100)
             step = step.softcap(ss,p,0,hasUpgrade('rp',16))
 
@@ -295,9 +312,7 @@ const BUILDINGS_DATA = {
             eff = step.pow(t.mul(hasElement(80)?25:1))
 
             if (!hasElement(199) || CHALS.inChal(15)) {
-                if (hasElement(18)) eff = eff.pow(tmp.elements.effect[18])
-                if (player.ranks.tetr.gte(3)) eff = eff.pow(1.05)
-
+                if (hasElement(18)) eff = eff.pow(tmp.elements.effect[18])                
                 if (hasElement(150)) eff = expMult(eff,1.6)
             }
 
@@ -911,17 +926,18 @@ function getMassUpgradeCost(i, lvl) {
     let start = upg.start, inc = upg.inc
 
     if (i==4) {
-        if (hasInfUpgrade(2)) start = E(1e10)
-        let pow = 1.5
-        cost = Decimal.pow(10,Decimal.pow(inc,lvl.scaleEvery('massUpg4').pow(pow)).mul(start))
+        if (player.ranks.rank.gte(278)) start = E(player.ranks.tier.gte(26)?100:364.4308068178)
+        let pow = 1.25
+        cost = Decimal.pow(10,Decimal.pow(inc,lvl.scaleEvery('massUpg4').pow(pow)).mul(start)).root(hasPrestige(0,7)?(prestigeEff(0,3,0)):1).div((hasPrestige(0,7))?(prestigeEff(0,3,0)):1)
     } else {
         fp = tmp.massFP
         
         if (i == 1 && player.ranks.rank.gte(2)) inc = inc.pow(0.8)
         if (i == 2 && player.ranks.rank.gte(3)) inc = inc.pow(0.8)
         if (i == 3 && player.ranks.rank.gte(5)) inc = inc.pow(0.8)
+        if (i == 4 && player.ranks.tiet.gte(26)) inc = inc.pow(0.75)
         if (player.ranks.tier.gte(3)) inc = inc.pow(0.8)
-        cost = inc.pow(lvl.div(fp).scaleEvery("massUpg")).mul(start)
+        cost = inc.pow(lvl.div(fp).scaleEvery("massUpg")).mul(start).root(hasPrestige(0,7)?(prestigeEff(0,3,0)):1).div((hasPrestige(0,7))?(prestigeEff(0,3,0)):1)
     }
 
     return cost
@@ -933,18 +949,19 @@ function getMassUpgradeBulk(i) {
     let start = upg.start, inc = upg.inc
 
     if (i==4) {
-        if (hasInfUpgrade(2)) start = E(1e10)
-        let pow = 1.5
-        if (player.mass.gte(Decimal.pow(10,start))) bulk = player.mass.max(1).log10().div(start).max(1).log(inc).max(0).root(pow).scaleEvery('massUpg4',true).add(1).floor()
+        if (player.ranks.rank.gte(278)) start = E(player.ranks.tier.gte(26)?100:364.4308068178)
+        let pow = 1.25
+        if (player.mass.gte(Decimal.pow(10,start))) bulk = player.mass.mul((hasPrestige(0,7))?(prestigeEff(0,3,0)):1).pow(hasPrestige(0,7)?(prestigeEff(0,3,0)):1).max(1).log10().div(start).max(1).log(inc).max(0).root(pow).scaleEvery('massUpg4',true).add(1).floor()
     } else {
         fp = tmp.massFP
         
         if (i == 1 && player.ranks.rank.gte(2)) inc = inc.pow(0.8)
         if (i == 2 && player.ranks.rank.gte(3)) inc = inc.pow(0.8)
         if (i == 3 && player.ranks.rank.gte(5)) inc = inc.pow(0.8)
+        if (i == 4 && player.ranks.tiet.gte(26)) inc = inc.pow(0.75)
         if (player.ranks.tier.gte(3)) inc = inc.pow(0.8)
 
-        if (player.mass.gte(start)) bulk = player.mass.div(start).max(1).log(inc).scaleEvery("massUpg",true).mul(fp).add(1).floor()
+        if (player.mass.gte(start)) bulk = player.mass.mul((hasPrestige(0,7))?(prestigeEff(0,3,0)):1).pow(hasPrestige(0,7)?(prestigeEff(0,3,0)):1).div(start).max(1).log(inc).scaleEvery("massUpg",true).mul(fp).add(1).floor()
     }
 
     return bulk

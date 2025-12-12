@@ -3,7 +3,6 @@ const STARS = {
     gain() {
         let x = player.stars.generators[0]
         if (player.md.upgs[8].gte(1)) x = x.mul(tmp.md.upgs[8].eff)
-        if (hasPrestige(1,1)) x = x.pow(2)
 
         x = x.softcap(tmp.stars.softGain,tmp.stars.softPower,0)
 
@@ -101,7 +100,6 @@ const STARS = {
             if (hasElement(54)) x = x.mul(tmp.elements.effect[54])
             x = x.mul(BUILDINGS.eff('star_booster'))
             x = hasElement(213) ? x.pow(tmp.bosons.upgs.photon[3].effect) : x.mul(tmp.bosons.upgs.photon[3].effect)
-            if (hasPrestige(1,1)) x = x.pow(2)
 
             x = expMult(x,GPEffect(0))
             if (QCs.active()) x = expMult(x,tmp.qu.qc_eff[0][0])
