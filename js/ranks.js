@@ -460,7 +460,7 @@ const PRESTIGES = {
             "5": `Challenges 1-8 are boosted by prestige base.`,
             "6": `Mass, Mass upgrade 1 are multiplied by prestige base also Mass softcap and Mass softcap^2 starts later based on prestige base.`,
             "7": `Prestige Level 3 also applies to Mass upgrades and tickspeed, Prestige Level 2 also applies to Mass gain and Prestige Level 6 is stronger based on prestige base.`,
-            "8": `Mass softcap and Mass softcap^2 starts later based on Prestige Levels and keep Challenges on reset.`,
+            "8": `Mass softcap and Mass softcap^2 starts later based on Prestige Levels.`,
             "9": `Prestige Level 2, 3 and 5 are stronger.`,
             "12": `Stronger Effect's, Mass softcap and Mass softcap^2 are 10% weaker.`,
             "18": `Rank’s effect on Prestige Base is doubled.`,
@@ -481,7 +481,7 @@ const PRESTIGES = {
             "1337": `Pre-Quantum Global Speed boosts matter exponent at a reduced rate. Prestige Level 382 is stronger.`,
         },
         {
-            "1": `Prestige Levels 1, 4 and 8 are applied on more time.`,
+            "1": `Prestige Levels 1 and 4 are applied one more time.`,
             "2": `Pre Ultra Rank-Tetr, mass upgrades 1-3, tickspeed scales 20% weaker.`,
             "3": `Tickspeed is stronger based on Prestige Base and rank reward 565 also uses Honor.`,
             "4": `You can automatically tetr up, Tetrs no longer reset anything.`,
@@ -687,7 +687,6 @@ const PRESTIGES = {
             BUILDINGS.reset('tickspeed')
             BUILDINGS.reset('accelerator')
             player.ranks.tetr = E(0)
-            if(chal_reset && !hasAscension(0,8) && !hasPrestige(1,1)) for (let x = 1; x <= 8; x++) player.chal.comps[x] = E(0)  
             }
             
             updateRanksTemp()
